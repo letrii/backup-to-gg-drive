@@ -5,14 +5,15 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from datetime import datetime, timedelta
+from pathlib import Path
 
-with open("config.json") as f:
+with open(f"{Path().absolute()}/config.json") as f:
     config = json.load(f)
 
 
 def handler(folder_name, folder_path):
     # Create a Credentials object from the JSON data
-    credentials = service_account.Credentials.from_service_account_file("credentials.json")
+    credentials = service_account.Credentials.from_service_account_file(f"{Path().absolute()}/credentials.json")
 
     # Build the Drive API service
     service = build("drive", "v3", credentials=credentials)
