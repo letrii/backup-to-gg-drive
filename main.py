@@ -47,9 +47,12 @@ def handler(folder_name, folder_path):
     old_file_name = f"{config['parent_folder_name']}-{folder_name}-{previous_date.strftime('%d-%m')}"
     for item in items:
         drive_file = item["name"]
-        if drive_file == old_file_name:
+        if old_file_name in drive_file:
             file_id = item["id"]
             service.files().delete(fileId=file_id).execute()
+            old_file = os.path.join(dir_path, drive_file)
+            if os.path.isfile(old_file):
+                os.remove(old_file)
 
 
 if __name__ == "__main__":
