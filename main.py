@@ -32,6 +32,10 @@ def handler(folder_name, folder_path):
     media = MediaFileUpload(f"{filename}.zip", mimetype="application/zip", resumable=True)
     file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
 
+    file_path = os.path.join(dir_path, filename)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+
     # share file
     new_permission = {
         "type": "user",
