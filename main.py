@@ -32,7 +32,7 @@ def handler(folder_name, folder_path):
     media = MediaFileUpload(f"{filename}.zip", mimetype="application/zip", resumable=True)
     file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
 
-    file_path = os.path.join(dir_path, filename)
+    file_path = os.path.join(dir_path, filename + ".zip")
     if os.path.isfile(file_path):
         os.remove(file_path)
 
@@ -54,7 +54,7 @@ def handler(folder_name, folder_path):
         if old_file_name in drive_file:
             file_id = item["id"]
             service.files().delete(fileId=file_id).execute()
-            old_file = os.path.join(dir_path, drive_file)
+            old_file = os.path.join(dir_path, drive_file + ".zip")
             if os.path.isfile(old_file):
                 os.remove(old_file)
 
