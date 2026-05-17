@@ -43,7 +43,8 @@ def handler(service, folder_name, folder_path):
     # upload file
     file_metadata = {
         "name": f"{filename}.zip",
-        "mimeType": "application/zip"
+        "mimeType": "application/zip",
+        "parents": [config["folder_id"]]
     }
     media = MediaFileUpload(f"{filename}.zip", mimetype="application/zip", resumable=True)
     file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
