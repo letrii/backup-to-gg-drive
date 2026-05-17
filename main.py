@@ -2,10 +2,14 @@ import shutil
 import json
 import os
 
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from datetime import datetime, timedelta
+
+SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,13 +17,25 @@ with open(os.path.join(dir_path, 'config.json')) as f:
     config = json.load(f)
 
 
-def handler(folder_name, folder_path):
-    # Create a Credentials object from the JSON data
-    credentials = service_account.Credentials.from_service_account_file(os.path.join(dir_path, 'credentials.json'))
+def get_credentials():
+    token_path = os.path.join(dir_path, "token.json")
+    creds = None
+    if os.path.exists(token_path):
+        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                os.path.join(dir_path, "oauth_credentials.json"), SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        with open(token_path, "w") as token:
+            token.write(creds.to_json())
+    return creds
 
-    # Build the Drive API service
-    service = build("drive", "v3", credentials=credentials)
 
+def handler(service, folder_name, folder_path):
     current_date = datetime.now()
     filename = f"{config['parent_folder_name']}-{folder_name}-{current_date.strftime('%d-%m')}"
     shutil.make_archive(filename, "zip", folder_path)
@@ -35,14 +51,6 @@ def handler(folder_name, folder_path):
     file_path = os.path.join(dir_path, filename + ".zip")
     if os.path.isfile(file_path):
         os.remove(file_path)
-
-    # share file
-    new_permission = {
-        "type": "user",
-        "role": "writer",
-        "emailAddress": config["share_email"],
-    }
-    service.permissions().create(fileId=file.get("id"), body=new_permission, transferOwnership=False).execute()
 
     # List all files
     results = service.files().list().execute()
@@ -60,5 +68,6 @@ def handler(folder_name, folder_path):
 
 
 if __name__ == "__main__":
+    service = build("drive", "v3", credentials=get_credentials())
     for info in config["folders"]:
-        handler(info["folder_name"], info["folder_path"])
+        handler(service, info["folder_name"], info["folder_path"])
