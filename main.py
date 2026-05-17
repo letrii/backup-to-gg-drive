@@ -80,7 +80,7 @@ def handler(service, folder_name, folder_path, include_paths=None):
                 try:
                     zf.write(src, prefix)
                 except (UnicodeEncodeError, OSError) as e:
-                    print(f"Skipped: {src!r} — {e}")
+                    print("Skipped: %r - %s" % (src, e))
             else:
                 for root, dirs, files in os.walk(src):
                     for file in files:
@@ -90,7 +90,7 @@ def handler(service, folder_name, folder_path, include_paths=None):
                             arcname = os.path.join(prefix, rel) if prefix else rel
                             zf.write(file_full, arcname)
                         except (UnicodeEncodeError, OSError) as e:
-                            print(f"Skipped: {file_full!r} — {e}")
+                            print("Skipped: %r - %s" % (file_full, e))
 
     file_metadata = {
         "name": f"{filename}.zip",
