@@ -82,6 +82,7 @@ def handler(service, folder_name, folder_path, include_paths=None):
     filename = f"{config['parent_folder_name']}-{folder_name}-{current_date.strftime('%d-%m')}"
     zip_path = filename + ".zip"
     targets = get_target_paths(folder_path, include_paths)
+    print("[%s] Zipping %s..." % (current_date.strftime('%Y-%m-%d %H:%M:%S'), folder_name))
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
         for src, prefix, is_file in targets:
             if is_file:
@@ -102,8 +103,9 @@ def handler(service, folder_name, folder_path, include_paths=None):
         "mimeType": "application/zip",
         "parents": [config["folder_id"]]
     }
-    media = MediaFileUpload(f"{filename}.zip", mimetype="application/zip", resumable=True)
+    media = MediaFileUpload(zip_path, mimetype="application/zip", resumable=True)
     file = service.files().create(body=file_metadata, media_body=media, fields="id", supportsAllDrives=True).execute()
+    print("[%s] Uploaded %s (id: %s)" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), filename + ".zip", file.get("id")))
 
     if os.path.isfile(zip_path):
         os.remove(zip_path)
