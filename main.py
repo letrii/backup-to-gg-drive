@@ -69,6 +69,14 @@ def get_target_paths(folder_path, include_paths=None):
     return [(folder_path, "", False)]
 
 
+def _zip_write(zf, file_full, arcname):
+    safe_arcname = arcname.encode("utf-8", "surrogateescape").decode("latin-1")
+    zinfo = zipfile.ZipInfo.from_file(file_full, safe_arcname)
+    zinfo.compress_type = zipfile.ZIP_DEFLATED
+    with open(file_full, "rb") as f:
+        zf.writestr(zinfo, f.read())
+
+
 def handler(service, folder_name, folder_path, include_paths=None):
     current_date = datetime.now()
     filename = f"{config['parent_folder_name']}-{folder_name}-{current_date.strftime('%d-%m')}"
@@ -77,20 +85,14 @@ def handler(service, folder_name, folder_path, include_paths=None):
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
         for src, prefix, is_file in targets:
             if is_file:
-                try:
-                    zf.write(src, prefix)
-                except (UnicodeEncodeError, OSError) as e:
-                    print("Skipped: %r - %s" % (src, e))
+                _zip_write(zf, src, prefix)
             else:
                 for root, dirs, files in os.walk(src):
                     for file in files:
                         file_full = os.path.join(root, file)
-                        try:
-                            rel = os.path.relpath(file_full, src)
-                            arcname = os.path.join(prefix, rel) if prefix else rel
-                            zf.write(file_full, arcname)
-                        except (UnicodeEncodeError, OSError) as e:
-                            print("Skipped: %r - %s" % (file_full, e))
+                        rel = os.path.relpath(file_full, src)
+                        arcname = os.path.join(prefix, rel) if prefix else rel
+                        _zip_write(zf, file_full, arcname)
 
     file_metadata = {
         "name": f"{filename}.zip",
