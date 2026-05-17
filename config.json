@@ -2,11 +2,21 @@
   "folder_id": "1Lf30EpB6ZDoZyOiYS4oqL2cFpGyg6FiZ",
   "share_email": "",
   "keep_date": -1,
-  "parent_folder_name": "",
+  "parent_folder_name": "crm",
   "folders": [
     {
-      "folder_name": "",
-      "folder_path": ""
+      "folder_name": "be",
+      "folder_path": "/home/deploy/be"
+    },
+    {
+      "folder_name": "infra",
+      "folder_path": "/home/deploy/infra",
+      "include_paths": ["nginx/nginx.conf", "nginx/lua", "data/database", "redis-volume"]
+    },
+    {
+      "folder_name": "controller",
+      "folder_path": "/home/deploy/controller",
+      "include_paths": ["static"]
     }
   ]
 }
