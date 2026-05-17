@@ -1,6 +1,7 @@
 {
   "folder_id": "1Lf30EpB6ZDoZyOiYS4oqL2cFpGyg6FiZ",
   "share_email": "",
+  "exclude_extensions": [".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".pdf"],
   "keep_date": -1,
   "parent_folder_name": "crm",
   "folders": [

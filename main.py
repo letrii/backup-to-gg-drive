@@ -87,8 +87,11 @@ def handler(service, folder_name, folder_path, include_paths=None):
             if is_file:
                 _zip_write(zf, src, prefix)
             else:
+                exclude = config.get("exclude_extensions", [])
                 for root, dirs, files in os.walk(src):
                     for file in files:
+                        if any(file.lower().endswith(ext) for ext in exclude):
+                            continue
                         file_full = os.path.join(root, file)
                         rel = os.path.relpath(file_full, src)
                         arcname = os.path.join(prefix, rel) if prefix else rel
