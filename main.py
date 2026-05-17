@@ -47,7 +47,7 @@ def handler(service, folder_name, folder_path):
         "parents": [config["folder_id"]]
     }
     media = MediaFileUpload(f"{filename}.zip", mimetype="application/zip", resumable=True)
-    file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+    file = service.files().create(body=file_metadata, media_body=media, fields="id", supportsAllDrives=True).execute()
 
     file_path = os.path.join(dir_path, filename + ".zip")
     if os.path.isfile(file_path):
